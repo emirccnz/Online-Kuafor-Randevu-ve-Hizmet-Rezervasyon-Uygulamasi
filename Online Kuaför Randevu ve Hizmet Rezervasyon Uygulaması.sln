@@ -1,11 +1,21 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
-VisualStudioVersion = 17.14.36511.14 d17.14
+VisualStudioVersion = 17.14.36511.14
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Online Kuaför Randevu ve Hizmet Rezervasyon Uygulaması", "Online Kuaför Randevu ve Hizmet Rezervasyon Uygulaması\Online Kuaför Randevu ve Hizmet Rezervasyon Uygulaması.csproj", "{8D18653B-66AC-4650-B451-430ADB0594A0}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Online Kuaför Randevu ve Hizmet Rezervasyon Uygulaması.Client", "Online Kuaför Randevu ve Hizmet Rezervasyon Uygulaması.Client\Online Kuaför Randevu ve Hizmet Rezervasyon Uygulaması.Client.csproj", "{0E3836EA-CDB2-4E69-93F1-F0ABA5B35790}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Data.Models", "Data.Models\Data.Models.csproj", "{B5711459-6FC1-45C1-8C19-CD08E72E50AD}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Data", "Data", "{038E30A5-1E22-41E3-98B6-EC4E36A5B79C}"
+	ProjectSection(SolutionItems) = preProject
+		..\json-dosyaları\appointments.json = ..\json-dosyaları\appointments.json
+		..\json-dosyaları\busy-slots.json = ..\json-dosyaları\busy-slots.json
+		..\json-dosyaları\employees.json = ..\json-dosyaları\employees.json
+		..\json-dosyaları\services.json = ..\json-dosyaları\services.json
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -21,6 +31,10 @@ Global
 		{0E3836EA-CDB2-4E69-93F1-F0ABA5B35790}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{0E3836EA-CDB2-4E69-93F1-F0ABA5B35790}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{0E3836EA-CDB2-4E69-93F1-F0ABA5B35790}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B5711459-6FC1-45C1-8C19-CD08E72E50AD}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B5711459-6FC1-45C1-8C19-CD08E72E50AD}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B5711459-6FC1-45C1-8C19-CD08E72E50AD}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B5711459-6FC1-45C1-8C19-CD08E72E50AD}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
