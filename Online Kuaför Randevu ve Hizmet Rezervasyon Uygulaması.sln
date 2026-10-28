@@ -9,14 +9,6 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Online Kuaför Randevu ve H
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Data.Models", "Data.Models\Data.Models.csproj", "{B5711459-6FC1-45C1-8C19-CD08E72E50AD}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Data", "Data", "{038E30A5-1E22-41E3-98B6-EC4E36A5B79C}"
-	ProjectSection(SolutionItems) = preProject
-		..\json-dosyaları\appointments.json = ..\json-dosyaları\appointments.json
-		..\json-dosyaları\busy-slots.json = ..\json-dosyaları\busy-slots.json
-		..\json-dosyaları\employees.json = ..\json-dosyaları\employees.json
-		..\json-dosyaları\services.json = ..\json-dosyaları\services.json
-	EndProjectSection
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
