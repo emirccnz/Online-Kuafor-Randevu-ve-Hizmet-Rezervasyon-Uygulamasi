@@ -1,5 +1,6 @@
 using Online_Kuaför_Randevu_ve_Hizmet_Rezervasyon_Uygulaması.Client.Pages;
 using Online_Kuaför_Randevu_ve_Hizmet_Rezervasyon_Uygulaması.Components;
+using Online_Kuaför_Randevu_ve_Hizmet_Rezervasyon_Uygulaması.Client.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -7,7 +8,7 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents()
     .AddInteractiveWebAssemblyComponents();
-
+builder.Services.AddScoped<SalonDataService>();
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.

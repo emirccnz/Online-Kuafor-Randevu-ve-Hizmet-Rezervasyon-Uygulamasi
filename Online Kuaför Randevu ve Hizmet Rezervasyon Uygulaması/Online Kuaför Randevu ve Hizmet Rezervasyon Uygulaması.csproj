@@ -9,8 +9,13 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\Data.Models\Data.Models.csproj" />
     <ProjectReference Include="..\Online Kuaför Randevu ve Hizmet Rezervasyon Uygulaması.Client\Online Kuaför Randevu ve Hizmet Rezervasyon Uygulaması.Client.csproj" />
     <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.Server" Version="8.0.20" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="D\" />
   </ItemGroup>
 
 </Project>

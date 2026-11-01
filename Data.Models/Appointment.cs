@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Text;
 using System.Text.Json.Serialization;
@@ -28,12 +29,19 @@ namespace Data.Models
         public decimal Price { get; set; }
 
         [JsonPropertyName("custFullName")]
+        [Required(ErrorMessage = "Ad-Soyad alanı doldurulması zorunludur!")]
+        [StringLength(50, MinimumLength = 3, ErrorMessage = "Ad-Soyad 3 ile 50 karakter arasında olmalıdır!")]
         public string CustFullName { get; set; } = string.Empty;
 
         [JsonPropertyName("email")]
+        [Required(ErrorMessage = "Email alanı doldurulması zorunludur!")]
+        [EmailAddress(ErrorMessage = "Geçerli bir e-mail adresi giriniz!")]
         public string Email { get; set; } = string.Empty;
 
         [JsonPropertyName("phone")]
+        [Required(ErrorMessage = "Telefon numarası zorunludur.")]
+        [Phone(ErrorMessage = "Geçerli bir telefon numarası giriniz.")]
+        [StringLength(15, MinimumLength = 10, ErrorMessage = "Telefon numarası 10 ile 15 karakter arasında olmalıdır.")]
         public string Phone { get; set; } = string.Empty;
 
         [JsonPropertyName("isCanceled")]
