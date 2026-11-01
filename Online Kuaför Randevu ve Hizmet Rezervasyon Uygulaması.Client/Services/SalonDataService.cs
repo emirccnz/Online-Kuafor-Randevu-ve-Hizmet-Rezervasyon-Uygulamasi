@@ -29,7 +29,7 @@ namespace Online_Kuaför_Randevu_ve_Hizmet_Rezervasyon_Uygulaması.Client.Servic
 
         public async Task<List<BusySlot>> GetBusySlotsAsync()
         {
-            return await LoadDataAsync<BusySlot>("busySlots.json");
+            return await LoadDataAsync<BusySlot>("busy-slots.json");
         }
     }
 }

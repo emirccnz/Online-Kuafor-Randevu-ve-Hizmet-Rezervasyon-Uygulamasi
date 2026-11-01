@@ -18,7 +18,7 @@ namespace Online_Kuaför_Randevu_ve_Hizmet_Rezervasyon_Uygulaması.Client.Servic
             TimeSpan openTime = new TimeSpan(9, 0, 0);
             TimeSpan closeTime = new TimeSpan(19, 0, 0);
 
-            if(newStart.TimeOfDay < openTime || newEnd > closeTime)
+            if(newStart.TimeOfDay < openTime || newEnd.TimeOfDay > closeTime)
             {
                 return false;
             }
