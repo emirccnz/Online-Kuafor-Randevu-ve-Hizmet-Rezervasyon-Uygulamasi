@@ -1,6 +1,6 @@
 ﻿using Data.Models;
 
-namespace Online_Kuafor_Randevu_ve_Hizmet_Rezervasyon_Uygulamasi.Client.Services
+namespace Online_Kuaför_Randevu_ve_Hizmet_Rezervasyon_Uygulaması.Client.Services
 {
     public class AppointmentSessionService
     {

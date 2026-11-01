@@ -1,80 +1,87 @@
-﻿using Data.Models;
+﻿using System.ComponentModel.DataAnnotations;
+using Data.Models;
 using Online_Kuaför_Randevu_ve_Hizmet_Rezervasyon_Uygulaması.Client.Services;
 
-namespace Online_Kuafor_Randevu_ve_Hizmet_Rezervasyon_Uygulamasi.Client.Services
+namespace Online_Kuaför_Randevu_ve_Hizmet_Rezervasyon_Uygulaması.Client.Services
 {
     public class AppointmentBusinessService
     {
         public List<Employee> GetEligibleEmployees(List<Employee> allEmployees, List<string> selectedServiceIDs)
         {
             if (selectedServiceIDs == null || !selectedServiceIDs.Any()) return new List<Employee>();
+            if (allEmployees == null) return new List<Employee>();
             return allEmployees.Where(e => selectedServiceIDs.All(id => e.Services.Contains(id))).ToList();
         }
 
         public bool IsSlotAvailable(string employeeId, DateTime newStart, DateTime newEnd, List<BusySlot> busySlots, List<Appointment> localAppointments)
         {
-            if (newStart <= DateTime.Now) return false;
+            if (string.IsNullOrWhiteSpace(employeeId)) return false;
+            if (newEnd <= newStart) return false;
+            busySlots ??= new List<BusySlot>();
+            localAppointments ??= new List<Appointment>();
 
+            if (newStart <= DateTime.Now) return false;
             TimeSpan openTime = new TimeSpan(9, 0, 0);
             TimeSpan closeTime = new TimeSpan(19, 0, 0);
-
             if (newStart.TimeOfDay < openTime || newEnd.TimeOfDay > closeTime) return false;
-            if (newStart.Date != newEnd.Date) return false; 
+            if (newStart.Date != newEnd.Date) return false;
 
-            bool hasBusySlotConflict = busySlots.Any(b =>
-                b.EpId == employeeId && newStart < b.EndAt && newEnd > b.StartAt);
+            bool hasBusySlotConflict = busySlots.Any(b => b.EpId == employeeId && newStart < b.EndAt && newEnd > b.StartAt);
             if (hasBusySlotConflict) return false;
 
-            bool hasAppointmentConflict = localAppointments.Any(a =>
-                a.EpId == employeeId && !a.IsCanceled && newStart < a.EndAt && newEnd > a.StartAt);
-
+            bool hasAppointmentConflict = localAppointments.Any(a => a.EpId == employeeId && !a.IsCanceled && newStart < a.EndAt && newEnd > a.StartAt);
             return !hasAppointmentConflict;
         }
 
-        public async Task<(bool IsSuccess, string Message, Appointment? Data)> CreateAppointmentAsync(
-            Appointment draftAppointment,
-            List<Service> selectedServices,
-            List<BusySlot> currentBusySlots,
-            LocalStorageService localStorage)
+        public async Task<(bool IsSuccess, string Message, Appointment? Data)> CreateAppointmentAsync(Appointment draftAppointment, List<Service> selectedServices, List<BusySlot> currentBusySlots, LocalStorageService localStorage)
         {
+            if (selectedServices == null || !selectedServices.Any())
+                return (false, "En az bir hizmet seçilmelidir.", null);
+
+            var validationContext = new ValidationContext(draftAppointment);
+            var validationResults = new List<ValidationResult>();
+            bool isValid = Validator.TryValidateObject(draftAppointment, validationContext, validationResults, true);
+            if (!isValid)
+            {
+                var errors = string.Join(" ", validationResults.Select(r => r.ErrorMessage));
+                return (false, $"Doğrulama hatası: {errors}", null);
+            }
+
             draftAppointment.Price = selectedServices.Sum(s => s.Price);
             int totalDuration = selectedServices.Sum(s => s.Duration);
             draftAppointment.EndAt = draftAppointment.StartAt.AddMinutes(totalDuration);
 
             var localAppointments = await localStorage.GetItemAsync<List<Appointment>>("appointments") ?? new List<Appointment>();
 
-            bool isAvailable = IsSlotAvailable(draftAppointment.EpId, draftAppointment.StartAt, draftAppointment.EndAt, currentBusySlots, localAppointments);
+            bool isAvailable = IsSlotAvailable(draftAppointment.EpId ?? "", draftAppointment.StartAt, draftAppointment.EndAt, currentBusySlots, localAppointments);
+            if (!isAvailable) return (false, "Seçilen saat dilimi artık uygun değil veya çalışma saatleri dışında.", null);
 
-            if (!isAvailable)
-                return (false, "Seçilen saat dilimi artık uygun değil veya çalışma saatleri dışında.", null);
+            string uniqueCode = "";
+            Random rnd = new Random();
+            bool isUnique = false;
+            while (!isUnique)
+            {
+                uniqueCode = $"KFR-{DateTime.Now.Year}-{rnd.Next(1000, 10000)}";
+                if (!localAppointments.Any(a => a.Id == uniqueCode))
+                {
+                    isUnique = true;
+                }
+            }
 
-            string uniqueCode = $"KFR-{DateTime.Now.Year}-{new Random().Next(1000, 9999)}";
             draftAppointment.Id = uniqueCode;
             draftAppointment.IsCanceled = false;
-
             draftAppointment.Services = selectedServices.Select(s => s.Id).ToList();
 
             localAppointments.Add(draftAppointment);
             await localStorage.SetItemAsync("appointments", localAppointments);
-
             return (true, "Randevunuz başarıyla oluşturuldu.", draftAppointment);
         }
 
         public async Task<(bool IsSuccess, string Message)> CancelAppointmentAsync(string appointmentId, LocalStorageService localStorage)
         {
             var localAppointments = await localStorage.GetItemAsync<List<Appointment>>("appointments") ?? new List<Appointment>();
-
             var appt = localAppointments.FirstOrDefault(a => a.Id == appointmentId);
+
             if (appt == null) return (false, "Randevu bulunamadı.");
             if (appt.IsCanceled) return (false, "Randevu zaten iptal edilmiş.");
-
-            if (appt.StartAt <= DateTime.Now.AddHours(2))
-                return (false, "Randevuya 2 saatten az kaldığı veya saati geçtiği için iptal edilemez.");
-
-            appt.IsCanceled = true;
-            await localStorage.SetItemAsync("appointments", localAppointments);
-
-            return (true, "Randevunuz iptal edildi. Bu saat dilimi artık uygun saat hesaplamasında dolu kabul edilmeyecektir.");
-        }
-    }
-}
+            if (appt.StartAt <= DateTime.Now.AddHours(2)) return (false, "Randevuya
