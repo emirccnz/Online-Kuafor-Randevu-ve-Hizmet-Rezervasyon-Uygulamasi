@@ -1,0 +1,43 @@
+
+[
+    {
+        "id": "EP1",
+        "fullName": "Mehmet Demir",
+        "services": ["SV1", "SV6", "SV7", "SV8"]
+    },
+    {
+        "id": "EP2",
+        "fullName": "Ahmet Yılmaz",
+        "services": ["SV1", "SV6", "SV7", "SV11", "SV12", "SV13"]
+    },
+    {
+        "id": "EP3",
+        "fullName": "Ayşe Yılmaz",
+        "services": ["SV2", "SV3", "SV4", "SV5", "SV7", "SV9", "SV14", "SV15"]
+    },
+    {
+        "id": "EP4",
+        "fullName": "Zeynep Kaya",
+        "services": ["SV2", "SV3", "SV4", "SV5", "SV7", "SV9", "SV14", "SV15"]
+    },
+    {
+        "id": "EP5",
+        "fullName": "Elif Çelik",
+        "services": ["SV2", "SV3", "SV4", "SV5", "SV7", "SV9", "SV10", "SV14"]
+    },
+    {
+        "id": "EP6",
+        "fullName": "Can Özdemir",
+        "services": ["SV1", "SV6", "SV7", "SV8", "SV10", "SV11"]
+    },
+    {
+        "id": "EP7",
+        "fullName": "Fatma Şahin",
+        "services": ["SV2", "SV3", "SV4", "SV5", "SV7", "SV9", "SV10", "SV12", "SV13", "SV15"]
+    },
+    {
+        "id": "EP8",
+        "fullName": "Burak Aydın",
+        "services": ["SV1", "SV6", "SV7", "SV8", "SV11"]
+    }
+]

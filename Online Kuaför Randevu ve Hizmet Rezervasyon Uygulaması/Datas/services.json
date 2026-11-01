@@ -1,0 +1,18 @@
+
+[
+    {"id":"SV1","name":"Erkek Saç Kesimi","duration":30,"price":300,"gender":"erkek"},
+    {"id":"SV2","name":"Kadın Saç Kesimi","duration":45,"price":500,"gender":"kadın"},
+    {"id":"SV3","name":"Saç Boyama","duration":90,"price":1500,"gender":"ortak"},
+    {"id":"SV4","name":"Dip Boya","duration":90,"price":800,"gender":"kadın"},
+    {"id":"SV5","name":"Ombre","duration":180,"price":3000,"gender":"kadın"},
+    {"id":"SV6","name":"Sakal Kesimi","duration":20,"price":300,"gender":"erkek"},
+    {"id":"SV7","name":"Saç Yıkama ve Fön","duration":20,"price":250,"gender":"ortak"},
+    {"id":"SV8","name":"Yüz Ağdası","duration":10,"price":200,"gender":"ortak"},
+    {"id":"SV9","name":"Saç Şekillendirme","duration":30,"price":400,"gender":"kadın"},
+    {"id":"SV10","name":"Keratin Bakımı","duration":120,"price":1500,"gender":"ortak"},
+    {"id":"SV11","name":"Kaş Alma","duration":15,"price":150,"gender":"ortak"},
+    {"id":"SV12","name":"Manikür","duration":30,"price":350,"gender":"ortak"},
+    {"id":"SV13","name":"Pedikür","duration":45,"price":500,"gender":"ortak"},
+    {"id":"SV14","name":"Gelin Saçı","duration":120,"price":3500,"gender":"kadın"},
+    {"id":"SV15","name":"Makyaj","duration":60,"price":1200,"gender":"kadın"}
+]
