@@ -1,0 +1,56 @@
+﻿@namespace Online_Kuaför_Randevu_ve_Hizmet_Rezervasyon_Uygulaması.Client.Components
+<div class="service-grid" role="group" aria-label="Hizmet seçimi">
+    @foreach (var service in Services)
+    {
+        var isSelected = IsSelected(service);
+
+        <button type="button"
+                class="service-card @(isSelected ? "selected" : "")"
+                @onclick="() => Toggle(service)"
+                aria-pressed="@isSelected">
+            <span class="check" aria-hidden="true">@(isSelected ? "✓" : "")</span>
+
+            <h4 class="service-name">@service.Name</h4>
+
+            <p class="service-meta">
+                <span>@service.Duration dk</span>
+                <span class="sep" aria-hidden="true"></span>
+                <span class="price">@service.Price ₺</span>
+            </p>
+
+            @if (!string.IsNullOrWhiteSpace(service.Gender))
+            {
+                <span class="gender-badge gender-@service.Gender">@service.Gender</span>
+            }
+        </button>
+    }
+</div>
+
+@code {
+    [Parameter]
+    public List<Service> Services { get; set; } = new();
+
+    [Parameter]
+    public List<Service> SelectedServices { get; set; } = new();
+
+    [Parameter]
+    public EventCallback<List<Service>> OnSelectionChanged { get; set; }
+
+    private bool IsSelected(Service service)
+        => SelectedServices.Any(s => s.Id == service.Id);
+
+    private void Toggle(Service service)
+    {
+        var existing = SelectedServices.FirstOrDefault(s => s.Id == service.Id);
+        if (existing is not null)
+        {
+            SelectedServices.Remove(existing);
+        }
+        else
+        {
+            SelectedServices.Add(service);
+        }
+
+        OnSelectionChanged.InvokeAsync(SelectedServices);
+    }
+}

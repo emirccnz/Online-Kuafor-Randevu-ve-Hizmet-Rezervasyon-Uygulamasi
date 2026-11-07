@@ -1,0 +1,38 @@
+﻿@namespace Online_Kuaför_Randevu_ve_Hizmet_Rezervasyon_Uygulaması.Client.Components
+<div class="employee-grid" role="group" aria-label="Çalışan seçimi">
+    @foreach (var employee in Employees)
+    {
+        var isSelected = SelectedEmployee is not null && SelectedEmployee.Id == employee.Id;
+
+        <button type="button"
+                class="employee-card @(isSelected ? "selected" : "")"
+                @onclick="() => OnEmployeeSelected.InvokeAsync(employee)"
+                aria-pressed="@isSelected">
+            <span class="avatar" aria-hidden="true">@GetInitials(employee.FullName)</span>
+
+            <h4 class="employee-name">@employee.FullName</h4>
+            <p class="employee-meta">@employee.Services.Count hizmet sunuyor</p>
+        </button>
+    }
+</div>
+
+@code {
+    [Parameter]
+    public List<Employee> Employees { get; set; } = new();
+
+    [Parameter]
+    public Employee? SelectedEmployee { get; set; }
+
+    [Parameter]
+    public EventCallback<Employee> OnEmployeeSelected { get; set; }
+
+    private static string GetInitials(string fullName)
+    {
+        var parts = fullName.Split(' ', StringSplitOptions.RemoveEmptyEntries);
+        var initials = parts
+            .Where(p => char.IsLetter(p[0]))
+            .Select(p => char.ToUpperInvariant(p[0]));
+
+        return string.Join("", initials);
+    }
+}

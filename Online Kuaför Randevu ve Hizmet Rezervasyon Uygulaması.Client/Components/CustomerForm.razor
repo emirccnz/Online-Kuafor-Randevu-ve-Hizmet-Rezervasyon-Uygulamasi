@@ -1,0 +1,48 @@
+﻿@namespace Online_Kuaför_Randevu_ve_Hizmet_Rezervasyon_Uygulaması.Client.Components
+<EditForm Model="Draft" OnValidSubmit="HandleValidSubmit" class="customer-form">
+    <DataAnnotationsValidator />
+
+    <div class="form-field">
+        <label class="form-label" for="custFullName">Ad Soyad</label>
+        <InputText id="custFullName"
+                   @bind-Value="Draft.CustFullName"
+                   class="form-control"
+                   placeholder="ör. Ayşe Yılmaz" />
+        <ValidationMessage For="() => Draft.CustFullName" class="validation-message" />
+    </div>
+
+    <div class="form-field">
+        <label class="form-label" for="email">E-posta</label>
+        <InputText id="email"
+                   type="email"
+                   @bind-Value="Draft.Email"
+                   class="form-control"
+                   placeholder="ör. ayse@ornek.com" />
+        <ValidationMessage For="() => Draft.Email" class="validation-message" />
+    </div>
+
+    <div class="form-field">
+        <label class="form-label" for="phone">Telefon</label>
+        <InputText id="phone"
+                   type="tel"
+                   @bind-Value="Draft.Phone"
+                   class="form-control"
+                   placeholder="ör. 0555 123 45 67" />
+        <ValidationMessage For="() => Draft.Phone" class="validation-message" />
+    </div>
+
+    <button type="submit" class="btn-confirm">Randevuyu Oluştur</button>
+</EditForm>
+
+@code {
+    [Parameter]
+    public Appointment Draft { get; set; } = new();
+
+    [Parameter]
+    public EventCallback<Appointment> OnValidSubmit { get; set; }
+
+    private void HandleValidSubmit()
+    {
+        OnValidSubmit.InvokeAsync(Draft);
+    }
+}

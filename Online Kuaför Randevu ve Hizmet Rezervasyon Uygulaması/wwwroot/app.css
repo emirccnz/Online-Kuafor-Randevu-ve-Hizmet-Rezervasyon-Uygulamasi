@@ -2,18 +2,47 @@ html, body {
     font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
 }
 
+/* Global tema değişkenleri — light lüks (beyaz zemin + altın) */
+:root {
+    --primary: #8a6b3c;
+    --accent: #c9a26b;
+    --bg: #faf9f7;
+    --surface: #ffffff;
+    --border: #e7e2db;
+    --text: #26211c;
+    --muted: #8b8480;
+    --danger: #b03a2e;
+    --success: #2e7d5b;
+}
+
+body {
+    background: var(--bg);
+    color: var(--text);
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+}
+
+h1, h2, h3 {
+    text-wrap: balance;
+}
+
 a, .btn-link {
-    color: #006bb7;
+    color: #8a6b3c;
 }
 
 .btn-primary {
     color: #fff;
-    background-color: #1b6ec2;
-    border-color: #1861ac;
+    background-color: #8a6b3c;
+    border-color: #8a6b3c;
 }
 
 .btn:focus, .btn:active:focus, .btn-link.nav-link:focus, .form-control:focus, .form-check-input:focus {
-  box-shadow: 0 0 0 0.1rem white, 0 0 0 0.25rem #258cfb;
+  box-shadow: 0 0 0 0.2rem rgba(201, 162, 107, 0.25);
+}
+
+/* Fiyat/saat gibi dinamik sayılar kaymasın */
+[class*="price"], [class*="total"], .time-slot, .slot-time {
+    font-variant-numeric: tabular-nums;
 }
 
 .content {

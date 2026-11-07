@@ -1,0 +1,163 @@
+﻿.calendar-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 1.1rem 1.2rem 1rem;
+}
+
+.date-row {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.7rem;
+}
+
+.date-label {
+    font-weight: 600;
+    color: var(--text);
+    font-size: 0.95rem;
+}
+
+.date-input {
+    padding: 0.45rem 0.7rem;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    font-size: 0.95rem;
+    color: var(--text);
+    background: var(--surface);
+}
+
+    .date-input:focus {
+        outline: 2px solid var(--primary);
+        outline-offset: 1px;
+        border-color: var(--primary);
+    }
+
+.weekday {
+    display: flex;
+    align-items: center;
+    gap: 0.8rem;
+    flex-wrap: wrap;
+    margin: 0.9rem 0 0.8rem;
+    font-size: 0.9rem;
+}
+
+.weekday-name {
+    font-weight: 700;
+    color: var(--primary);
+    text-transform: capitalize;
+}
+
+.weekday-hours {
+    color: var(--muted);
+}
+
+.slot-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(76px, 1fr));
+    gap: 0.5rem;
+}
+
+.slot {
+    padding: 0.5rem 0.25rem;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    background: var(--surface);
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: var(--text);
+    cursor: pointer;
+    transition: all 0.12s ease;
+}
+
+    .slot.available:hover {
+        border-color: var(--primary);
+        background: #f7f3ee;
+        color: var(--primary);
+    }
+
+    .slot.selected {
+        background: var(--primary);
+        border-color: var(--primary);
+        color: #fff;
+        box-shadow: 0 4px 10px rgba(26, 23, 20, 0.30);
+    }
+
+    .slot.busy {
+        background: #f1edeb;
+        border-color: #e4dcd7;
+        color: #b3a69f;
+        text-decoration: line-through;
+        cursor: not-allowed;
+    }
+
+    .slot.past {
+        background: transparent;
+        border-style: dashed;
+        color: #cfc5bf;
+        cursor: not-allowed;
+    }
+
+    .slot:disabled {
+        transform: none;
+        box-shadow: none;
+    }
+
+.legend {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.9rem;
+    margin-top: 0.9rem;
+    font-size: 0.8rem;
+    color: var(--muted);
+}
+
+.legend-item {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+}
+
+.dot {
+    display: inline-block;
+    width: 0.7rem;
+    height: 0.7rem;
+    border-radius: 4px;
+    border: 1px solid var(--border);
+}
+
+    .dot.available {
+        background: #fff;
+    }
+
+    .dot.selected {
+        background: var(--primary);
+        border-color: var(--primary);
+    }
+
+    .dot.busy {
+        background: #f1edeb;
+    }
+
+    .dot.past {
+        background: transparent;
+        border-style: dashed;
+    }
+
+.hint {
+    margin: 0.8rem 0 0;
+    font-size: 0.85rem;
+    color: var(--muted);
+}
+
+/* --- Luxury overrides --- */
+.calendar-card {
+    border-radius: 6px;
+}
+
+.date-label {
+    font-family: Georgia, 'Times New Roman', serif;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    font-size: 0.82rem;
+}

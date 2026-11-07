@@ -1,0 +1,196 @@
+﻿@page "/my-appointments"
+@rendermode @(new InteractiveWebAssemblyRenderMode(prerender: false))
+@using System.Globalization
+
+<PageTitle>Randevularım | Online Kuaför</PageTitle>
+
+@if (isLoading)
+{
+    <div class="page-loading">
+        <div class="spinner" aria-hidden="true"></div>
+        <p>Randevular yükleniyor…</p>
+    </div>
+}
+else
+{
+    <div class="page-header">
+        <div>
+            <h1>Randevularım</h1>
+            <p class="subtitle">@appointments.Count randevu · yaklaşan: @upcoming.Count, geçmiş: @(appointments.Count - upcoming.Count)</p>
+        </div>
+        <div class="filter-chips" role="group" aria-label="Filtre">
+            @foreach (var (key, label) in Filters)
+            {
+                <button type="button"
+                        class="chip @(activeFilter == key ? "active" : "")"
+                        @onclick="() => SetFilter(key)">@label</button>
+            }
+        </div>
+    </div>
+
+    @if (temporaryMessage is not null)
+    {
+        <div class="@($"page-alert {temporaryAlertType}")">@temporaryMessage</div>
+    }
+
+    @if (visibleAppointments.Count == 0)
+    {
+        <div class="empty-state">
+            <p>Bu kriterde görünür randevunuz yok.</p>
+            <a class="btn-primary-link" href="/services">Hizmetlere göz at →</a>
+        </div>
+    }
+    else
+    {
+        <div class="appointment-list">
+            @foreach (var appt in visibleAppointments)
+            {
+                var status = GetStatus(appt);
+
+                <article class="appointment-card @status.CssClass">
+                    <header class="card-head">
+                        <span class="code">@appt.Id</span>
+                        <span class="status-badge @status.CssClass">@status.Label</span>
+                    </header>
+
+                    <div class="card-body">
+                        <p class="when">
+                            <strong>@appt.StartAt.ToString("dd MMMM yyyy dddd", Turkish)</strong>
+                            <span>@appt.StartAt.ToString("HH:mm") – @appt.EndAt.ToString("HH:mm")</span>
+                        </p>
+
+                        <p class="row"><span class="label">Çalışan:</span> @(GetEmployeeName(appt.EpId))</p>
+
+                        <p class="row"><span class="label">Hizmetler:</span> @(GetServiceNames(appt.Services))</p>
+
+                        <p class="row"><span class="label">Ücret:</span><strong> @appt.Price ₺</strong></p>
+
+                        <p class="row small"><span class="label">Müşteri:</span> @appt.CustFullName · @appt.Phone · @appt.Email</p>
+                    </div>
+
+                    <footer class="card-foot">
+                        @if (CanCancel(appt))
+                        {
+                            <button type="button" class="btn-cancel" @onclick="() => Cancel(appointmentId: appt!.Id)">
+                                İptal Et
+                            </button>
+                        }
+                    </footer>
+                </article>
+            }
+        </div>
+    }
+}
+
+@code {
+    private static readonly CultureInfo Turkish = CultureInfo.GetCultureInfo("tr-TR");
+
+    private bool isLoading = true;
+    private List<Appointment> appointments = new();
+    private List<Employee> employees = new();
+    private List<Service> services = new();
+
+    private string activeFilter = "upcoming";
+    private string? temporaryMessage;
+    private string temporaryAlertType = "success";
+
+    private static readonly (string Key, string Label)[] Filters =
+    {
+        ("upcoming", "Yaklaşan"),
+        ("past", "Geçmiş"),
+        ("canceled", "İptal Edilen"),
+        ("all", "Tümü")
+    };
+
+    [Inject]
+    private SalonDataService SalonDataService { get; set; } = default!;
+
+    [Inject]
+    private LocalStorageService LocalStorage { get; set; } = default!;
+
+    [Inject]
+    private AppointmentBusinessService Business { get; set; } = default!;
+
+    [Inject]
+    private NavigationManager Navigation { get; set; } = default!;
+
+    private List<Appointment> upcoming => appointments
+        .Where(a => a.StartAt > DateTime.Now)
+        .OrderBy(a => a.StartAt)
+        .ToList();
+
+    private List<Appointment> visibleAppointments
+    {
+        get
+        {
+            IEnumerable<Appointment> result = activeFilter switch
+            {
+                "upcoming" => upcoming,
+                "past" => appointments.Where(a => a.StartAt <= DateTime.Now),
+                "canceled" => appointments.Where(a => a.IsCanceled),
+                _ => appointments
+            };
+            return result
+                .OrderBy(a => a.StartAt > DateTime.Now ? 0 : 1)
+                .ThenBy(a => a.StartAt)
+                .ToList();
+        }
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        appointments = await LocalStorage.GetItemAsync<List<Appointment>>("appointments") ?? new();
+        employees = await SalonDataService.GetEmployeesAsync();
+        services = await SalonDataService.GetServicesAsync();
+        isLoading = false;
+
+        // Yeni randevu oluşturulduysa (?created=KFR-...) başarı mesajı göster.
+        var query = new Uri(Navigation.Uri).Query;
+        var createdParam = query
+            .TrimStart('?')
+            .Split('&', StringSplitOptions.RemoveEmptyEntries)
+            .FirstOrDefault(p => p.StartsWith("created=", StringComparison.OrdinalIgnoreCase));
+
+        if (createdParam is not null)
+        {
+            var code = Uri.UnescapeDataString(createdParam.Substring("created=".Length));
+            temporaryMessage = $"🎉 Randevunuz oluşturuldu! Randevu kodunuz: {code}";
+            temporaryAlertType = "success";
+        }
+    }
+
+    private void SetFilter(string key)
+    {
+        activeFilter = key;
+        temporaryMessage = null;
+    }
+
+    private static (string Label, string CssClass) GetStatus(Appointment appt)
+    {
+        if (appt.IsCanceled) return ("İptal Edildi", "canceled");
+        if (appt.StartAt <= DateTime.Now) return ("Geçmiş", "past");
+        return ("Aktif", "active");
+    }
+
+    private static bool CanCancel(Appointment appt)
+        => !appt.IsCanceled && appt.StartAt > DateTime.Now.AddHours(2);
+
+    private string GetEmployeeName(string? employeeId)
+        => employees.FirstOrDefault(e => e.Id == employeeId)?.FullName ?? "—";
+
+    private string GetServiceNames(List<string>? ids)
+        => ids is null ? "—"
+           : string.Join(", ", ids.Select(id => services.FirstOrDefault(s => s.Id == id)?.Name ?? id));
+
+    private async Task Cancel(string? appointmentId)
+    {
+        if (appointmentId is null) return;
+
+        var (isSuccess, message) = await Business.CancelAppointmentAsync(appointmentId, LocalStorage);
+
+        temporaryMessage = message;
+        temporaryAlertType = isSuccess ? "success" : "error";
+
+        appointments = await LocalStorage.GetItemAsync<List<Appointment>>("appointments") ?? new();
+    }
+}

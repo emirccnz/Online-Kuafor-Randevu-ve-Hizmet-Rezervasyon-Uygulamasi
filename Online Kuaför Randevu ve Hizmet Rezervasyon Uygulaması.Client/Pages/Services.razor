@@ -1,0 +1,111 @@
+﻿@page "/services"
+@rendermode @(new InteractiveWebAssemblyRenderMode(prerender: false))
+
+
+<PageTitle>Hizmetler | Online Kuaför</PageTitle>
+
+@{
+    var hasSelection = session.SelectedServices.Count > 0;
+}
+@if (isLoading)
+{
+    <div class="page-loading">
+        <div class="spinner" aria-hidden="true"></div>
+        <p>Hizmetler yükleniyor…</p>
+    </div>
+}
+else if (services.Count == 0)
+{
+    <div class="page-alert error">
+        Hizmet verileri yüklenemedi. Veri dosyalarını (services.json) kontrol edin.
+    </div>
+}
+else
+{
+    <div class="page-header">
+        <div>
+            <h1>Hizmetlerimiz</h1>
+            <p class="subtitle">Bir veya birden fazla hizmet seçin, toplam süre ve ücret anlık hesaplanır.</p>
+        </div>
+        <span class="selection-count @(hasSelection ? "" : "hidden")">
+            @(session.SelectedServices.Count) hizmet seçildi
+        </span>
+    </div>
+
+    <div class="services-layout">
+        <div class="services-main">
+            <ServiceSelector Services="@services"
+                             SelectedServices="@session.SelectedServices"
+                             OnSelectionChanged="HandleSelectionChanged" />
+        </div>
+
+        <aside class="services-aside">
+            <div class="total-card">
+                <h3 class="total-title">Seçim Özeti</h3>
+                <ul class="total-list">
+                    <li><span>Hizmet</span><strong>@session.SelectedServices.Count</strong></li>
+                    <li><span>Toplam Süre</span><strong>@session.TotalDuration dk</strong></li>
+                    <li><span>Toplam Ücret</span><strong>@session.TotalPrice ₺</strong></li>
+                </ul>
+
+                <button type="button" class="btn-continue" disabled="@(session.SelectedServices.Count == 0)"
+                        @onclick="GoToAppointment">
+                    Randevu Oluştur →
+                </button>
+
+                @if (session.SelectedServices.Count == 0)
+                {
+                    <p class="hint">Devam etmek için en az bir hizmet seçmelisiniz.</p>
+                }
+            </div>
+        </aside>
+    </div>
+}
+
+@code {
+    private bool isLoading = true;
+    private List<Service> services = new();
+
+    [Inject]
+    private SalonDataService SalonDataService { get; set; } = default!;
+
+    [Inject]
+    private AppointmentSessionService session { get; set; } = default!;
+
+    [Inject]
+    private NavigationManager Navigation { get; set; } = default!;
+
+    protected override async Task OnInitializedAsync()
+    {
+        services = await SalonDataService.GetServicesAsync();
+
+        // Sayfalar arası geçişte session'daki seçimler eski nesne referanslarına
+        // işaret edebiliyor; ID'ye göre yeni listeyle eşleştir ve tekrarları temizle.
+        var freshSelection = session.SelectedServices
+            .Select(s => s.Id)
+            .Distinct()
+            .Select(id => services.FirstOrDefault(s => s.Id == id))
+            .Where(s => s is not null)
+            .Select(s => s!)
+            .ToList();
+
+        session.SelectedServices.Clear();
+        session.SelectedServices.AddRange(freshSelection);
+
+        isLoading = false;
+    }
+
+    private void HandleSelectionChanged(List<Service> _)
+    {
+        // Seçim state'i AppointmentSessionService üzerinden güncellenir.
+        StateHasChanged();
+    }
+
+    private void GoToAppointment()
+    {
+        if (session.SelectedServices.Count > 0)
+        {
+            Navigation.NavigateTo("/appointments/new");
+        }
+    }
+}

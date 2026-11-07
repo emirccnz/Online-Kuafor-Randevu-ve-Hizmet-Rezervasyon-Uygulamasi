@@ -1,0 +1,156 @@
+﻿@namespace Online_Kuaför_Randevu_ve_Hizmet_Rezervasyon_Uygulaması.Client.Components
+@using System.Globalization
+
+<div class="calendar-card">
+    <div class="date-row">
+        <label class="date-label" for="appointment-date">Randevu Tarihi</label>
+        <input id="appointment-date"
+               type="date"
+               class="date-input"
+               min="@GetMinDateString()"
+               value="@DateValueString"
+               onchange="@HandleDateChanged" />
+    </div>
+
+    @if (SelectedDate.HasValue)
+    {
+        <p class="weekday">
+            <span class="weekday-name">@SelectedDate.Value.ToString("dddd, dd MMMM yyyy", Turkish)</span>
+            <span class="weekday-hours">Çalışma saatleri 09:00–19:00</span>
+        </p>
+
+        <div class="slot-grid" role="group" aria-label="Saat seçimi">
+            @foreach (var slot in GetSlots())
+            {
+                var isSelectedToKill = IsSelectedSlot(slot);
+                var cssClass = GetSlotCss(slot, isSelectedToKill);
+
+                <button type="button"
+                        class="slot @cssClass"
+                        disabled="@slot.Disabled"
+                        title="@slot.Tooltip"
+                        aria-disabled="@slot.Disabled"
+                        @onclick="() => OnTimeSelected.InvokeAsync(slot.Start.TimeOfDay)">
+                    @slot.Start.ToString("HH:mm")
+                </button>
+            }
+        </div>
+
+        <div class="legend">
+            <span class="legend-item"><span class="dot available"></span>Müsait</span>
+            <span class="legend-item"><span class="dot selected"></span>Seçili</span>
+            <span class="legend-item"><span class="dot busy"></span>Dolu / Çakışıyor</span>
+            <span class="legend-item"><span class="dot past"></span>Geçmiş</span>
+        </div>
+    }
+    else
+    {
+        <p class="hint">Başlangıç saatleri 30 dakikalık aralıklarla sunulur. Tarih seçtikten sonra uygun saatler burada listelenir.</p>
+    }
+</div>
+
+@code {
+    private static readonly CultureInfo Turkish = CultureInfo.GetCultureInfo("tr-TR");
+
+    [Parameter]
+    public DateTime? SelectedDate { get; set; }
+
+    [Parameter]
+    public TimeSpan? SelectedTime { get; set; }
+
+    /// <summary>Seçilen hizmetlerin toplam süresi (dakika).</summary>
+    [Parameter]
+    public int TotalMinutes { get; set; }
+
+    [Parameter]
+    public string? EmployeeId { get; set; }
+
+    [Parameter]
+    public List<BusySlot> BusySlots { get; set; } = new();
+
+    [Parameter]
+    public List<Appointment> LocalAppointments { get; set; } = new();
+
+    [Parameter]
+    public EventCallback<DateTime> OnDateChanged { get; set; }
+
+    [Parameter]
+    public EventCallback<TimeSpan> OnTimeSelected { get; set; }
+
+    private string DateValueString => SelectedDate?.ToString("yyyy-MM-dd") ?? "";
+
+    private sealed class SlotInfo
+    {
+        public DateTime Start { get; init; }
+        public bool Disabled { get; set; }
+        public string Tooltip { get; set; } = "";
+        public bool IsPast { get; init; }
+    }
+
+    private string GetMinDateString() => DateTime.Now.ToString("yyyy-MM-dd");
+    private void HandleDateChanged(ChangeEventArgs e)
+    {
+        var raw = e.Value?.ToString();
+        if (DateTime.TryParse(raw, out var date))
+        {
+            OnDateChanged.InvokeAsync(date.Date);
+        }
+    }
+
+    private List<SlotInfo> GetSlots()
+    {
+        var slots = new List<SlotInfo>();
+        if (SelectedDate is null || TotalMinutes <= 0) return slots;
+
+        var date = SelectedDate.Value.Date;
+        var closing = date.AddHours(19);
+        var start = date.AddHours(9);
+
+        while (start.AddMinutes(TotalMinutes) <= closing)
+        {
+            var slot = new SlotInfo
+            {
+                Start = start,
+                IsPast = start <= DateTime.Now,
+                Tooltip = "",
+                Disabled = false
+            };
+
+            if (slot.IsPast)
+            {
+                slot.Disabled = true;
+                slot.Tooltip = "Geçmiş saat seçilemez.";
+            }
+            else if (HasConflict(start))
+            {
+                slot.Disabled = true;
+                slot.Tooltip = "Bu saat dolu veya seçilen hizmetlerle çakışıyor.";
+            }
+
+            slots.Add(slot);
+            start = start.AddMinutes(30);
+        }
+
+        return slots;
+    }
+
+    private bool HasConflict(DateTime start)
+    {
+        var end = start.AddMinutes(TotalMinutes);
+        var employeeId = EmployeeId ?? "";
+
+        return BusySlots.Any(b => b.EpId == employeeId && start < b.EndAt && end > b.StartAt)
+            || LocalAppointments.Any(a => a.EpId == employeeId && !a.IsCanceled && start < a.EndAt && end > a.StartAt);
+    }
+
+    private bool IsSelectedSlot(SlotInfo slot)
+        => SelectedTime.HasValue && slot.Start.Date == SelectedDate && slot.Start.TimeOfDay == SelectedTime.Value;
+
+    private string GetSlotCss(SlotInfo slot, bool isSelected)
+    {
+        if (slot.Disabled && slot.IsPast) return "past";
+        if (slot.Disabled) return "busy";
+        if (isSelected) return "selected";
+        return "available";
+    }
+}

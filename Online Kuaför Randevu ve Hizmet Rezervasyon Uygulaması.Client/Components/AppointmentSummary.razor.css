@@ -1,0 +1,87 @@
+﻿.summary-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 1.1rem 1.2rem;
+}
+
+.summary-title {
+    margin: 0 0 0.8rem;
+    font-size: 1.05rem;
+    font-weight: 700;
+    color: var(--primary);
+}
+
+.summary-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+
+.summary-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    gap: 1rem;
+    padding: 0.45rem 0;
+    border-bottom: 1px dashed var(--border);
+    font-size: 0.92rem;
+}
+
+    .summary-row:last-child {
+        border-bottom: none;
+    }
+
+.summary-label {
+    color: var(--muted);
+    flex-shrink: 0;
+}
+
+.summary-value {
+    color: var(--text);
+    font-weight: 600;
+    text-align: right;
+}
+
+.empty {
+    color: var(--muted);
+    font-weight: 400;
+    font-style: italic;
+}
+
+.arrow {
+    color: var(--primary);
+    margin: 0 0.15rem;
+}
+
+.total-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 0.7rem;
+    padding-top: 0.8rem;
+    border-top: 2px solid var(--border);
+    font-size: 1rem;
+    color: var(--text);
+}
+
+    .total-row strong {
+        font-size: 1.35rem;
+        color: var(--primary);
+    }
+
+/* --- Luxury overrides --- */
+.summary-title {
+    font-family: Georgia, 'Times New Roman', serif;
+    font-size: 0.85rem;
+    font-weight: 600;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    border-bottom: 2px solid #c9a26b;
+    padding-bottom: 0.5rem;
+    color: #292523;
+}
+
+.summary-card {
+    border-radius: 6px;
+}

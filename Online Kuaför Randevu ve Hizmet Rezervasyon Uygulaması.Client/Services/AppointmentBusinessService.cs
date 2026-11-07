@@ -84,4 +84,11 @@ namespace Online_Kuaför_Randevu_ve_Hizmet_Rezervasyon_Uygulaması.Client.Servic
 
             if (appt == null) return (false, "Randevu bulunamadı.");
             if (appt.IsCanceled) return (false, "Randevu zaten iptal edilmiş.");
-            if (appt.StartAt <= DateTime.Now.AddHours(2)) return (false, "Randevuya
+            if (appt.StartAt <= DateTime.Now.AddHours(2)) return (false, "Randevuya 2 saatten az kaldığı için iptal edilemez.");
+
+            appt.IsCanceled = true;
+            await localStorage.SetItemAsync("appointments", localAppointments);
+            return (true, "Randevunuz iptal edildi. İptal edilen saat yeniden kullanılabilir hale geldi.");
+        }
+    }
+}

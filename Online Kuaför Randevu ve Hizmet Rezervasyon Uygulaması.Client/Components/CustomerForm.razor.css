@@ -1,0 +1,65 @@
+﻿.form-field {
+    margin-bottom: 1rem;
+}
+
+.form-label {
+    display: block;
+    margin-bottom: 0.35rem;
+    font-weight: 600;
+    font-size: 0.9rem;
+    letter-spacing: 0.3px;
+    color: var(--text, #26211c);
+}
+
+/* InputText kendi <input> elementini üretir → ::deep ile ulaş */
+.form-field ::deep input.form-control {
+    width: 100%;
+    padding: 0.65rem 0.85rem;
+    border: 1px solid var(--border, #e7e2db);
+    border-radius: 3px;
+    font-size: 0.95rem;
+    color: var(--text, #26211c);
+    background: #fff;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.form-field ::deep input.form-control:focus {
+    outline: none;
+    border-color: #c9a26b;
+    box-shadow: 0 0 0 3px rgba(201, 162, 107, 0.22);
+}
+
+/* ValidationMessage kendi elementini üretir */
+.form-field ::deep .validation-message {
+    margin-top: 0.3rem;
+    font-size: 0.8rem;
+    color: var(--danger, #b03a2e);
+}
+
+.btn-confirm {
+    width: 100%;
+    padding: 0.95rem 1.2rem;
+    margin-top: 0.75rem;
+    background: #c9a26b;
+    border: 1px solid #c9a26b;
+    border-radius: 3px;
+    color: #26211c;
+    font-family: Georgia, 'Times New Roman', serif;
+    font-size: 0.92rem;
+    font-weight: 600;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: background-color 0.2s ease, box-shadow 0.2s ease, transform 0.15s ease;
+}
+
+.btn-confirm:hover {
+    background: #b8925f;
+    box-shadow: 0 6px 18px rgba(176, 141, 79, 0.35);
+}
+
+.btn-confirm:active {
+    background: #a5824e;
+    box-shadow: none;
+    transform: scale(0.96);
+}

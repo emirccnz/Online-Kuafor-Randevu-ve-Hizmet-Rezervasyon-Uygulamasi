@@ -1,0 +1,77 @@
+﻿@namespace Online_Kuaför_Randevu_ve_Hizmet_Rezervasyon_Uygulaması.Client.Components
+@using System.Globalization
+
+@{
+    var culture = CultureInfo.GetCultureInfo("tr-TR");
+}
+
+<div class="summary-card">
+    <h3 class="summary-title">Randevu Özeti</h3>
+
+    <ul class="summary-list">
+        <li class="summary-row">
+            <span class="summary-label">Hizmetler</span>
+            <span class="summary-value">
+                @if (SelectedServices.Count == 0)
+                {
+                    <span class="empty">Hizmet seçilmedi</span>
+                }
+                else
+                {
+                    @string.Join(", ", SelectedServices.Select(s => s.Name))
+                }
+            </span>
+        </li>
+
+        <li class="summary-row">
+            <span class="summary-label">Çalışan</span>
+            <span class="summary-value">@(SelectedEmployee?.FullName ?? "—")</span>
+        </li>
+
+        <li class="summary-row">
+            <span class="summary-label">Tarih</span>
+            <span class="summary-value">@(StartAt?.ToString("dd MMMM yyyy dddd", culture) ?? "—")</span>
+        </li>
+
+        <li class="summary-row">
+            <span class="summary-label">Başlangıç / Bitiş</span>
+            <span class="summary-value">
+                @if (StartAt is not null)
+                {
+                    @StartAt.Value.ToString("HH:mm", culture) <span class="arrow">→</span> @StartAt.Value.AddMinutes(TotalMinutes).ToString("HH:mm", culture)
+                }
+                else
+                {
+                    <span>—</span>
+                }
+            </span>
+        </li>
+
+        <li class="summary-row">
+            <span class="summary-label">Toplam Süre</span>
+            <span class="summary-value">@TotalMinutes dakika</span>
+        </li>
+    </ul>
+
+    <div class="total-row">
+        <span>Toplam Ücret</span>
+        <strong>@TotalPrice.ToString("N0", culture) ₺</strong>
+    </div>
+</div>
+
+@code {
+    [Parameter]
+    public List<Service> SelectedServices { get; set; } = new();
+
+    [Parameter]
+    public Employee? SelectedEmployee { get; set; }
+
+    [Parameter]
+    public DateTime? StartAt { get; set; }
+
+    [Parameter]
+    public int TotalMinutes { get; set; }
+
+    [Parameter]
+    public decimal TotalPrice { get; set; }
+}

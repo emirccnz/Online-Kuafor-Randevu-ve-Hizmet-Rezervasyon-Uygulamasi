@@ -1,0 +1,222 @@
+﻿@page "/appointments/new"
+@rendermode @(new InteractiveWebAssemblyRenderMode(prerender: false))
+
+
+<PageTitle>Randevu Oluştur | Online Kuaför</PageTitle>
+
+@if (session.SelectedServices.Count == 0)
+{
+    <div class="page-alert error">
+        Henüz hizmet seçmediniz.
+        <a href="/services">Hizmet seçimine dönün</a>.
+    </div>
+}
+else
+{
+    <div class="page-header">
+        <h1>Randevu Oluştur</h1>
+        <a class="back-link" href="/services">← Hizmetleri değiştir</a>
+    </div>
+
+    <ol class="steps">
+        <li class="@(HasSelection ? "active" : "")"><span>1</span> Çalışan</li>
+        <li class="@(session.SelectedEmployee is not null && session.SelectedDate is not null ? "active" : "")"><span>2</span> Tarih &amp; Saat</li>
+        <li class="@(startAt is not null ? "active" : "")"><span>3</span> Özet &amp; Kayıt</li>
+    </ol>
+
+    @if (alertMessage is not null)
+    {
+        <div class="page-alert error">@alertMessage</div>
+    }
+
+    <div class="appointment-layout">
+        <div class="appointment-main">
+            <section class="step-block">
+                    <h2>Çalışan Seçimi</h2>
+                    @if (isLoadingData)
+                    {
+                        <div class="page-loading">
+                            <div class="spinner" aria-hidden="true"></div>
+                            <p>Çalışanlar yükleniyor…</p>
+                        </div>
+                    }
+                    else if (eligibleEmployees.Count == 0)
+                    {
+                        <p class="hint">Seçtiğiniz hizmetlerin tamamını sunabilecek bir çalışan bulunamadı.</p>
+                    }
+                    else
+                    {
+                        <EmployeeSelector Employees="@eligibleEmployees"
+                                          SelectedEmployee="@session.SelectedEmployee"
+                                          OnEmployeeSelected="HandleEmployeeSelected" />
+                    }
+                </section>
+
+                <section class="step-block @(session.SelectedEmployee is null ? "disabled" : "")">
+                    <h2>Tarih ve Saat</h2>
+                    @if (session.SelectedEmployee is not null)
+                    {
+                        <AppointmentCalendar SelectedDate="@session.SelectedDate"
+                                             SelectedTime="@session.SelectedTime"
+                                             TotalMinutes="@session.TotalDuration"
+                                             EmployeeId="@session.SelectedEmployee.Id"
+                                             BusySlots="@busySlots"
+                                             LocalAppointments="@localAppointments"
+                                             OnDateChanged="HandleDateChanged"
+                                             OnTimeSelected="HandleTimeSelected" />
+                    }
+                    else
+                    {
+                        <p class="hint">Önce bir çalışan seçin.</p>
+                    }
+                </section>
+
+                <section class="step-block @(startAt is null ? "disabled" : "")">
+                    <h2>Özet ve Müşteri Bilgileri</h2>
+                    @if (startAt is not null)
+                    {
+                        <AppointmentSummary SelectedServices="@session.SelectedServices"
+                                            SelectedEmployee="@session.SelectedEmployee"
+                                            StartAt="@startAt"
+                                            TotalMinutes="@session.TotalDuration"
+                                            TotalPrice="@session.TotalPrice" />
+
+                        <CustomerForm Draft="@draft" OnValidSubmit="HandleValidSubmit" />
+                    }
+                    else
+                    {
+                        <p class="hint">Randevu saatini seçtikten sonra müşteri bilgilerinizi girebilirsiniz.</p>
+                    }
+                </section>
+        </div>
+
+        <aside class="appointment-aside">
+            <AppointmentSummary SelectedServices="@session.SelectedServices"
+                                SelectedEmployee="@session.SelectedEmployee"
+                                StartAt="@session.GetExactStartDateTime()"
+                                TotalMinutes="@session.TotalDuration"
+                                TotalPrice="@session.TotalPrice" />
+        </aside>
+    </div>
+}
+
+@code {
+    private bool isLoadingData = true;
+    private bool HasSelection => session.SelectedServices.Count > 0;
+    private List<Employee> allEmployees = new();
+    private List<Employee> eligibleEmployees = new();
+    private List<BusySlot> busySlots = new();
+    private List<Appointment> localAppointments = new();
+
+    private Appointment draft = new();
+    private DateTime? startAt;
+    private string? alertMessage;
+
+    [Inject]
+    private SalonDataService SalonDataService { get; set; } = default!;
+
+    [Inject]
+    private AppointmentSessionService session { get; set; } = default!;
+
+    [Inject]
+    private AppointmentBusinessService Business { get; set; } = default!;
+
+    [Inject]
+    private LocalStorageService LocalStorage { get; set; } = default!;
+
+    [Inject]
+    private NavigationManager Navigation { get; set; } = default!;
+
+    protected override async Task OnInitializedAsync()
+    {
+        var (employees, busy) = (await SalonDataService.GetEmployeesAsync(), await SalonDataService.GetBusySlotsAsync());
+        allEmployees = employees;
+        busySlots = busy;
+        localAppointments = await LocalStorage.GetItemAsync<List<Appointment>>("appointments") ?? new();
+       RefreshEligible();
+        isLoadingData = false;
+    }
+
+    private void RefreshEligible()
+    {
+        eligibleEmployees = Business.GetEligibleEmployees(
+            allEmployees,
+            session.SelectedServices.Select(s => s.Id).ToList());
+
+        if (session.SelectedEmployee is not null &&
+            !eligibleEmployees.Any(e => e.Id == session.SelectedEmployee!.Id))
+        {
+            session.SelectedEmployee = null;
+            session.SelectedDate = null;
+            session.SelectedTime = null;
+            startAt = null;
+        }
+    }
+
+    private void HandleEmployeeSelected(Employee employee)
+    {
+        session.SelectedEmployee = employee;
+        session.SelectedDate = null;
+        session.SelectedTime = null;
+        startAt = null;
+        alertMessage = null;
+    }
+
+    private void HandleDateChanged(DateTime date)
+    {
+        session.SelectedDate = date;
+        session.SelectedTime = null;
+        startAt = null;
+        alertMessage = null;
+    }
+
+    private void HandleTimeSelected(TimeSpan time)
+    {
+        session.SelectedTime = time;
+        startAt = session.GetExactStartDateTime();
+        alertMessage = null;
+    }
+
+    private async Task HandleValidSubmit(Appointment submitted)
+    {
+        alertMessage = null;
+        startAt ??= session.GetExactStartDateTime();
+
+        if (startAt is null)
+        {
+            alertMessage = "Lütfen önce uygun bir tarih ve saat seçin.";
+            return;
+        }
+
+        submitted.EpId = session.SelectedEmployee?.Id;
+        submitted.StartAt = startAt.Value;
+        submitted.EndAt = startAt.Value.AddMinutes(session.TotalDuration);
+        submitted.Services = session.SelectedServices.Select(s => s.Id).ToList();
+
+        try
+        {
+            var (isSuccess, message, created) = await Business.CreateAppointmentAsync(
+                submitted,
+                session.SelectedServices,
+                busySlots,
+                LocalStorage);
+
+            if (isSuccess && created is not null)
+            {
+                session.ClearSession();
+                alertMessage = null;
+                // Başarıda Randevularım sayfasına yönlendir (oluşturulan randevu vurgulu gösterilir).
+                Navigation.NavigateTo($"/my-appointments?created={created.Id}", forceLoad: false);
+                return;
+            }
+
+            alertMessage = message ?? "Randevu oluşturulamadı.";
+        }
+        catch (Exception)
+        {
+            alertMessage = "Randevu oluşturulurken beklenmeyen bir hata oluştu. Lütfen bilgileri kontrol edip tekrar deneyin.";
+        }
+
+        StateHasChanged();
+    }
+}
