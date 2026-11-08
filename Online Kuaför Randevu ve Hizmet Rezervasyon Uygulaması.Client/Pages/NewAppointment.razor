@@ -205,7 +205,7 @@ else
             {
                 session.ClearSession();
                 alertMessage = null;
-                // Başarıda Randevularım sayfasına yönlendir (oluşturulan randevu vurgulu gösterilir).
+            
                 Navigation.NavigateTo($"/my-appointments?created={created.Id}", forceLoad: false);
                 return;
             }

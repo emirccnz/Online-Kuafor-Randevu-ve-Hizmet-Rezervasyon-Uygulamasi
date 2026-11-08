@@ -2,7 +2,6 @@ html, body {
     font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
 }
 
-/* Global tema değişkenleri — light lüks (beyaz zemin + altın) */
 :root {
     --primary: #8a6b3c;
     --accent: #c9a26b;
@@ -40,7 +39,7 @@ a, .btn-link {
   box-shadow: 0 0 0 0.2rem rgba(201, 162, 107, 0.25);
 }
 
-/* Fiyat/saat gibi dinamik sayılar kaymasın */
+
 [class*="price"], [class*="total"], .time-slot, .slot-time {
     font-variant-numeric: tabular-nums;
 }

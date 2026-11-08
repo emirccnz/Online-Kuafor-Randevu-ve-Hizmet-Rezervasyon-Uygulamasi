@@ -144,7 +144,7 @@ else
         services = await SalonDataService.GetServicesAsync();
         isLoading = false;
 
-        // Yeni randevu oluşturulduysa (?created=KFR-...) başarı mesajı göster.
+        
         var query = new Uri(Navigation.Uri).Query;
         var createdParam = query
             .TrimStart('?')
